@@ -232,18 +232,6 @@
             font-size: 1rem;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-        }
-        
-        .btn-primary:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
@@ -529,7 +517,7 @@
             // API Endpoints
             GEMINI_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent',
             OPENWEATHER_URL: 'https://api.openweathermap.org/data/2.5',
-            AGRO_URL: 'https://api.agromonitoring.com/agro/1.0'
+            AGRO_URL: 'http://api.agromonitoring.com/agro/1.0'
         };
 
         // API Service Functions
@@ -540,11 +528,11 @@
                     const payload = {
                         contents: [{
                             parts: [{
-                                text: `You are a smart farming AI assistant. Context: ${context}\n\nUser question: ${message}\n\nProvide practical farming advice based on the context and question.`
+                                text: You are a smart farming AI assistant. Context: ${context}\n\nUser question: ${message}\n\nProvide practical farming advice based on the context and question.
                             }]
                         }],
                     };
-                    const response = await fetch(`${API_CONFIG.GEMINI_URL}?key=${API_CONFIG.GEMINI_API_KEY}`, {
+                    const response = await fetch(${API_CONFIG.GEMINI_URL}?key=${API_CONFIG.GEMINI_API_KEY}, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -562,24 +550,23 @@
             async getWeatherData(lat, lon) {
                 try {
                     const currentWeather = await fetch(
-                        `${API_CONFIG.OPENWEATHER_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_CONFIG.OPENWEATHER_API_KEY}&units=metric`
+                        ${API_CONFIG.OPENWEATHER_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_CONFIG.OPENWEATHER_API_KEY}&units=metric
                     );
                     const currentData = await currentWeather.json();
 
                     const forecast = await fetch(
-                        `${API_CONFIG.OPENWEATHER_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_CONFIG.OPENWEATHER_API_KEY}&units=metric`
+                        ${API_CONFIG.OPENWEATHER_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_CONFIG.OPENWEATHER_API_KEY}&units=metric
                     );
                     const forecastData = await forecast.json();
 
                     return {
-                        location: currentData.name,
                         temperature: currentData.main.temp,
                         condition: currentData.weather[0].description,
                         humidity: currentData.main.humidity,
                         windSpeed: currentData.wind.speed * 3.6, // Convert m/s to km/h
                         rainfall: currentData.rain ? currentData.rain['1h'] || 0 : 0,
                         uv: '--', // UV data requires separate API call
-                        prediction: `${forecastData.list[1].weather[0].description} expected in next 6 hours`,
+                        prediction: ${forecastData.list[1].weather[0].description} expected in next 6 hours,
                         icon: currentData.weather[0].icon,
                         forecast: forecastData.list.slice(0, 8).map(item => ({
                             time: new Date(item.dt * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
@@ -591,7 +578,6 @@
                 } catch (error) {
                     console.error('OpenWeather API Error:', error);
                     return {
-                        location: 'N/A',
                         temperature: '--',
                         condition: 'Unable to fetch weather data',
                         humidity: '--',
@@ -625,15 +611,14 @@
                         }
                     };
 
-                    const polygonResponse = await fetch(`${API_CONFIG.AGRO_URL}/polygons?appid=${API_CONFIG.AGRO_API_KEY}`, {
+                    const polygonResponse = await fetch(${API_CONFIG.AGRO_URL}/polygons?appid=${API_CONFIG.AGRO_API_KEY}, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(polygon)
                     });
 
                     if (!polygonResponse.ok) {
-                        console.error('AgroMonitoring API Key Error:', polygonResponse.status, polygonResponse.statusText);
-                        throw new Error('Failed to create polygon. Check API key and permissions.');
+                        throw new Error('Failed to create polygon');
                     }
 
                     const polygonData = await polygonResponse.json();
@@ -641,7 +626,7 @@
 
                     // Get soil data for the polygon
                     const soilResponse = await fetch(
-                        `${API_CONFIG.AGRO_URL}/soil?polyid=${polygonId}&appid=${API_CONFIG.AGRO_API_KEY}`
+                        ${API_CONFIG.AGRO_URL}/soil?polyid=${polygonId}&appid=${API_CONFIG.AGRO_API_KEY}
                     );
 
                     if (!soilResponse.ok) {
@@ -694,16 +679,11 @@
                         }
                     };
 
-                    const polygonResponse = await fetch(`${API_CONFIG.AGRO_URL}/polygons?appid=${API_CONFIG.AGRO_API_KEY}`, {
+                    const polygonResponse = await fetch(${API_CONFIG.AGRO_URL}/polygons?appid=${API_CONFIG.AGRO_API_KEY}, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(polygon)
                     });
-                    
-                    if (!polygonResponse.ok) {
-                        console.error('AgroMonitoring API Key Error:', polygonResponse.status, polygonResponse.statusText);
-                        throw new Error('Failed to create polygon. Check API key and permissions.');
-                    }
 
                     const polygonData = await polygonResponse.json();
                     const polygonId = polygonData.id;
@@ -713,7 +693,7 @@
                     const start = end - (30 * 24 * 60 * 60); // 30 days ago
 
                     const ndviResponse = await fetch(
-                        `${API_CONFIG.AGRO_URL}/image/search?start=${start}&end=${end}&polyid=${polygonId}&appid=${API_CONFIG.AGRO_API_KEY}`
+                        ${API_CONFIG.AGRO_URL}/image/search?start=${start}&end=${end}&polyid=${polygonId}&appid=${API_CONFIG.AGRO_API_KEY}
                     );
 
                     const ndviData = await ndviResponse.json();
@@ -767,7 +747,7 @@
                         }
                     };
 
-                    const response = await fetch(`${API_CONFIG.GEMINI_URL}?key=${API_CONFIG.GEMINI_API_KEY}`, {
+                    const response = await fetch(${API_CONFIG.GEMINI_URL}?key=${API_CONFIG.GEMINI_API_KEY}, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -855,7 +835,7 @@
                         <div className="card weather-card">
                             <div className="card-header">
                                 <div className="card-title">
-                                    <div className="card-icon">🌤️</div>
+                                    <div className="card-icon">🌤</div>
                                     <h3>Live Weather Data</h3>
                                 </div>
                                 <div className="ai-badge">OpenWeather API</div>
@@ -865,7 +845,6 @@
                                 <div>{weatherData.condition}</div>
                             </div>
                             <div className="weather-details">
-                                <div>Location: {weatherData.location}</div>
                                 <div>Humidity: {typeof weatherData.humidity === 'number' ? Math.round(weatherData.humidity) : weatherData.humidity}%</div>
                                 <div>Wind: {typeof weatherData.windSpeed === 'number' ? Math.round(weatherData.windSpeed) : weatherData.windSpeed} km/h</div>
                                 <div>Rainfall: {weatherData.rainfall}mm</div>
@@ -925,7 +904,7 @@
                         <div className="card">
                             <div className="card-header">
                                 <div className="card-title">
-                                    <div className="card-icon">🛰️</div>
+                                    <div className="card-icon">🛰</div>
                                     <h3>Crop Health (NDVI)</h3>
                                 </div>
                                 <div className="ai-badge">Satellite</div>
@@ -934,7 +913,7 @@
                                 <div className="analysis-card">
                                     <h4>Vegetation Index</h4>
                                     <div className="confidence-bar">
-                                        <div className="confidence-fill" style={{width: `${(ndviData.ndvi || 0) * 100}%`}}></div>
+                                        <div className="confidence-fill" style={{width: ${(ndviData.ndvi || 0) * 100}%}}></div>
                                     </div>
                                     <p>NDVI: {typeof ndviData.ndvi === 'number' ? ndviData.ndvi.toFixed(2) : ndviData.ndvi}</p>
                                     <small>Last updated: {ndviData.date}</small>
@@ -989,7 +968,7 @@
                     {/* Dynamic Weather Alert */}
                     {typeof weatherData.rainfall === 'number' && weatherData.rainfall > 0 && (
                         <div className="alert alert-warning">
-                            🌧️ Weather Alert: {weatherData.rainfall}mm rainfall detected. {weatherData.prediction}
+                            🌧 Weather Alert: {weatherData.rainfall}mm rainfall detected. {weatherData.prediction}
                         </div>
                     )}
 
@@ -1009,7 +988,7 @@
                                     <h4>{rec.crop}</h4>
                                     <div style={{margin: '0.5rem 0'}}>
                                         <div className="confidence-bar">
-                                            <div className="confidence-fill" style={{width: `${rec.suitability}%`}}></div>
+                                            <div className="confidence-fill" style={{width: ${rec.suitability}%}}></div>
                                         </div>
                                         <div>{rec.suitability}% Suitability</div>
                                     </div>
@@ -1083,7 +1062,7 @@
                     
                     <div className="ai-chat">
                         {chatMessages.map((message, index) => (
-                            <div key={index} className={`chat-message ${message.type === 'user' ? 'user-message' : 'ai-message'}`}>
+                            <div key={index} className={chat-message ${message.type === 'user' ? 'user-message' : 'ai-message'}}>
                                 <div>{message.text}</div>
                                 {message.model && <div className="model-tag">{message.model}</div>}
                             </div>
@@ -1112,43 +1091,14 @@
         };
 
         // Marketplace Component
-        const Marketplace = () => {
-            const [productName, setProductName] = useState('');
-            const [quantity, setQuantity] = useState('');
-            const [aiSuggestion, setAiSuggestion] = useState(
-                "🤖 AI Pricing: Enter a product to get a dynamic price recommendation."
-            );
-            const [isLoading, setIsLoading] = useState(false);
+        const Marketplace = ({ marketplaceItems, setMarketplaceItems }) => {
+            const [selectedModel, setSelectedModel] = useState('market-lstm');
             
-            const handlePriceSuggestion = async () => {
-                if (!productName || !quantity) return;
-
-                setIsLoading(true);
-                setAiSuggestion("🤖 AI is generating a price suggestion...");
-
-                const prompt = `Based on a real-world market analysis for a farmer in India, generate a price recommendation for a product.
-                Product Name: ${productName}
-                Quantity: ${quantity}
-                
-                Provide a single paragraph of analysis. Start with "🤖 AI Pricing:". Use a mix of emoji. For example, mention market trends, demand, or suggest a price range, and then a specific recommended price.`;
-
-                try {
-                    const response = await APIService.chatWithGemini(prompt, "");
-                    setAiSuggestion(response);
-                } catch (error) {
-                    setAiSuggestion("🤖 AI Pricing: Sorry, I couldn't generate a price suggestion at this time.");
-                } finally {
-                    setIsLoading(false);
-                }
+            const aiModels = {
+                'market-lstm': { name: 'Market LSTM', specialty: 'Price prediction' },
+                'demand-forecast': { name: 'Demand Forecaster', specialty: 'Market demand' },
+                'price-optimizer': { name: 'Price Optimizer', specialty: 'Optimal pricing' }
             };
-            
-            // Mock marketplace items for demonstration
-            const marketplaceItems = [
-                { id: 1, name: 'Fresh Tomatoes', price: '$3.50/kg', farmer: 'John Doe', location: 'Kerala', emoji: '🍅', prediction: '↗️ Price rising 12% this week' },
-                { id: 2, name: 'Organic Rice', price: '$2.80/kg', farmer: 'Mary Smith', location: 'Punjab', emoji: '🌾', prediction: '📈 High demand expected' },
-                { id: 3, name: 'Sweet Corn', price: '$4.20/kg', farmer: 'Raj Patel', location: 'Gujarat', emoji: '🌽', prediction: '💰 Premium pricing opportunity' },
-                { id: 4, name: 'Fresh Spinach', price: '$1.90/kg', farmer: 'Priya Nair', location: 'Tamil Nadu', emoji: '🥬', prediction: '⚡ Quick sell recommended' }
-            ];
 
             return (
                 <div>
@@ -1161,30 +1111,12 @@
                             <div className="ai-badge">Price Optimizer</div>
                         </div>
                         <div className="input-group">
-                            <input 
-                                type="text" 
-                                className="input-field" 
-                                placeholder="Product name (e.g., Mangoes)" 
-                                value={productName}
-                                onChange={(e) => setProductName(e.target.value)}
-                            />
-                            <input 
-                                type="text" 
-                                className="input-field" 
-                                placeholder="Quantity (e.g., 100 kg)"
-                                value={quantity}
-                                onChange={(e) => setQuantity(e.target.value)}
-                            />
-                            <button 
-                                className="btn btn-primary" 
-                                onClick={handlePriceSuggestion}
-                                disabled={isLoading || !productName || !quantity}
-                            >
-                                {isLoading ? "Generating..." : "Get AI Price Suggestion"}
-                            </button>
+                            <input type="text" className="input-field" placeholder="Product name (AI will suggest pricing)" />
+                            <input type="text" className="input-field" placeholder="Quantity (kg)" />
+                            <button className="btn btn-primary">Get AI Price Suggestion</button>
                         </div>
                         <div className="alert alert-info">
-                            {aiSuggestion}
+                            🤖 AI Pricing: Based on current market trends, similar tomatoes are selling at ₹45-52/kg. Recommended: ₹48/kg
                         </div>
                         <div className="api-status">
                             <div className="status-dot"></div>
@@ -1268,7 +1200,6 @@
             const [diseaseImage, setDiseaseImage] = useState(null);
             const [diseaseAnalysis, setDiseaseAnalysis] = useState(null);
             const [diseaseImageFile, setDiseaseImageFile] = useState(null);
-            const [isLoading, setIsLoading] = useState(false);
 
             const handleImageUpload = (event) => {
                 const file = event.target.files[0];
@@ -1282,7 +1213,6 @@
             const handleAnalyzeClick = async () => {
                 if (!diseaseImageFile) return;
 
-                setIsLoading(true);
                 setDiseaseAnalysis({
                     disease: 'Analyzing...', 
                     confidence: 0, 
@@ -1290,20 +1220,14 @@
                     treatment: 'Please wait, AI is analyzing the image.'
                 });
                 
-                try {
-                    const result = await APIService.analyzeImageWithGemini(diseaseImageFile);
+                const result = await APIService.analyzeImageWithGemini(diseaseImageFile);
 
-                    setDiseaseAnalysis({
-                        disease: result.disease || 'Unknown',
-                        confidence: result.confidence || 0,
-                        severity: result.severity || 'N/A',
-                        treatment: result.treatment || 'No specific treatment found.'
-                    });
-                } catch (error) {
-                    setDiseaseAnalysis({ disease: 'Analysis failed', confidence: 0, severity: 'Unknown', treatment: 'Please try again.' });
-                } finally {
-                    setIsLoading(false);
-                }
+                setDiseaseAnalysis({
+                    disease: result.disease || 'Unknown',
+                    confidence: result.confidence || 0,
+                    severity: result.severity || 'N/A',
+                    treatment: result.treatment || 'No specific treatment found.'
+                });
             };
 
             return (
@@ -1343,12 +1267,8 @@
                         
                         {diseaseImage && (
                             <div style={{marginTop: '1rem'}}>
-                                <button 
-                                    className="btn btn-primary" 
-                                    onClick={handleAnalyzeClick}
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? "Analyzing..." : "🧠 Analyze with Gemini AI"}
+                                <button className="btn btn-primary" onClick={handleAnalyzeClick}>
+                                    🧠 Analyze with Gemini AI
                                 </button>
                                 <button 
                                     className="btn btn-secondary" 
@@ -1379,7 +1299,7 @@
                                 <div className="analysis-card">
                                     <h4>🦠 {diseaseAnalysis.disease}</h4>
                                     <div className="confidence-bar">
-                                        <div className="confidence-fill" style={{width: `${diseaseAnalysis.confidence}%`}}></div>
+                                        <div className="confidence-fill" style={{width: ${diseaseAnalysis.confidence}%}}></div>
                                     </div>
                                     <p>{diseaseAnalysis.confidence}% Overall Confidence</p>
                                     <small>Severity: {diseaseAnalysis.severity}</small>
@@ -1428,7 +1348,7 @@
                                 <div key={key} className="analysis-card">
                                     <h4>{model.name}</h4>
                                     <div className="confidence-bar">
-                                        <div className="confidence-fill" style={{width: `${Math.floor(Math.random() * 30) + 70}%`}}></div>
+                                        <div className="confidence-fill" style={{width: ${Math.floor(Math.random() * 30) + 70}%}}></div>
                                     </div>
                                     <p>Active & Running</p>
                                     <small>{model.specialty}</small>
@@ -1447,7 +1367,7 @@
                         </div>
                         <div className="analysis-grid">
                             <div className="analysis-card">
-                                <h4>🌤️ Weather Prediction</h4>
+                                <h4>🌤 Weather Prediction</h4>
                                 <div className="stat-number" style={{fontSize: '1.5rem'}}>94.2%</div>
                                 <p>Accuracy (7-day forecast)</p>
                                 <small>OpenWeatherMap + Custom LSTM</small>
@@ -1456,6 +1376,7 @@
                                 <h4>🦠 Disease Detection</h4>
                                 <div className="stat-number" style={{fontSize: '1.5rem'}}>96.7%</div>
                                 <p>Accuracy (validated dataset)</p>
+                                <small>PlantVillage + ResNet ensemble</small>
                             </div>
                             <div className="analysis-card">
                                 <h4>💰 Price Prediction</h4>
@@ -1481,7 +1402,6 @@
             const [weatherData, setWeatherData] = useState({
                 temperature: '--',
                 condition: 'Loading...',
-                location: 'Loading...',
                 humidity: '--',
                 windSpeed: '--',
                 rainfall: '--',
@@ -1509,7 +1429,12 @@
             const [cropRecommendations, setCropRecommendations] = useState([
                 { crop: 'Loading...', emoji: '⏳', suitability: 0, reason: 'Analyzing live data...' }
             ]);
-            
+            const [marketplaceItems, setMarketplaceItems] = useState([
+                { id: 1, name: 'Fresh Tomatoes', price: '$3.50/kg', farmer: 'John Doe', location: 'Kerala', emoji: '🍅', prediction: '↗ Price rising 12% this week' },
+                { id: 2, name: 'Organic Rice', price: '$2.80/kg', farmer: 'Mary Smith', location: 'Punjab', emoji: '🌾', prediction: '📈 High demand expected' },
+                { id: 3, name: 'Sweet Corn', price: '$4.20/kg', farmer: 'Raj Patel', location: 'Gujarat', emoji: '🌽', prediction: '💰 Premium pricing opportunity' },
+                { id: 4, name: 'Fresh Spinach', price: '$1.90/kg', farmer: 'Priya Nair', location: 'Tamil Nadu', emoji: '🥬', prediction: '⚡ Quick sell recommended' }
+            ]);
             const chartRef = useRef(null);
 
             // Default farm location (you can get this from user profile later)
@@ -1543,12 +1468,12 @@
                 setNdviData(ndvi);
                 
                 // Generate AI-powered crop recommendations
-                const context = `Weather: ${weather.temperature}°C, ${weather.condition}. Soil: pH ${soil.ph}, N:${soil.nitrogen}, P:${soil.phosphorus}, K:${soil.potassium}`;
+                const context = Weather: ${weather.temperature}°C, ${weather.condition}. Soil: pH ${soil.ph}, N:${soil.nitrogen}, P:${soil.phosphorus}, K:${soil.potassium};
                 // You can use Gemini here to generate recommendations, for now using mock data
                 setCropRecommendations([
-                    { crop: 'Rice', emoji: '🌾', suitability: 88, reason: `Good for current weather (${weather.condition}) and soil pH ${soil.ph}` },
-                    { crop: 'Tomatoes', emoji: '🍅', suitability: 85, reason: `Optimal temperature ${weather.temperature}°C, good potassium levels` },
-                    { crop: 'Corn', emoji: '🌽', suitability: 82, reason: `Suitable humidity ${weather.humidity}%, adequate nutrients` }
+                    { crop: 'Rice', emoji: '🌾', suitability: 88, reason: Good for current weather (${weather.condition}) and soil pH ${soil.ph} },
+                    { crop: 'Tomatoes', emoji: '🍅', suitability: 85, reason: Optimal temperature ${weather.temperature}°C, good potassium levels },
+                    { crop: 'Corn', emoji: '🌽', suitability: 82, reason: Suitable humidity ${weather.humidity}%, adequate nutrients }
                 ]);
             };
 
@@ -1564,120 +1489,29 @@
                             </div>
                             <div className="nav-tabs">
                                 <button 
-                                    className={`nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
+                                    className={nav-tab ${activeTab === 'dashboard' ? 'active' : ''}}
                                     onClick={() => setActiveTab('dashboard')}
                                 >
                                     🏠 Live Dashboard
                                 </button>
                                 <button 
-                                    className={`nav-tab ${activeTab === 'chat' ? 'active' : ''}`}
+                                    className={nav-tab ${activeTab === 'chat' ? 'active' : ''}}
                                     onClick={() => setActiveTab('chat')}
                                 >
                                     🧠 AI Chat
                                 </button>
                                 <button 
-                                    className={`nav-tab ${activeTab === 'marketplace' ? 'active' : ''}`}
+                                    className={nav-tab ${activeTab === 'marketplace' ? 'active' : ''}}
                                     onClick={() => setActiveTab('marketplace')}
                                 >
                                     🛒 AI Marketplace
                                 </button>
                                 <button 
-                                    className={`nav-tab ${activeTab === 'community' ? 'active' : ''}`}
+                                    className={nav-tab ${activeTab === 'community' ? 'active' : ''}}
                                     onClick={() => setActiveTab('community')}
                                 >
                                     👥 Smart Community
                                 </button>
                                 <button 
-                                    className={`nav-tab ${activeTab === 'disease' ? 'active' : ''}`}
+                                    className={nav-tab ${activeTab === 'disease' ? 'active' : ''}}
                                     onClick={() => setActiveTab('disease')}
-                                >
-                                    🔬 Disease AI
-                                </button>
-
-                                <button 
-                                    className={`nav-tab ${activeTab === 'data' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('data')}
-                                >
-                                    📡 API Status
-                                </button>
-                            </div>
-                        </div>
-                    </nav>
-
-                    <main className="main-content">
-                        {activeTab === 'dashboard' && (
-                            <Dashboard 
-                                activeTab={activeTab}
-                                weatherData={weatherData}
-                                soilData={soilData}
-                                ndviData={ndviData}
-                                cropRecommendations={cropRecommendations}
-                                chartRef={chartRef}
-                            />
-                        )}
-                        
-                        {activeTab === 'chat' && (
-                            <AIChat 
-                                chatMessages={chatMessages}
-                                setChatMessages={setChatMessages}
-                                chatInput={chatInput}
-                                setChatInput={setChatInput}
-                                weatherData={weatherData}
-                                soilData={soilData}
-                            />
-                        )}
-
-                        {activeTab === 'marketplace' && <Marketplace />}
-
-                        {activeTab === 'community' && <Community />}
-
-                        {activeTab === 'disease' && <DiseaseDetection />}
-
-                        {activeTab === 'data' && (
-                            <div className="card">
-                                <div className="card-header">
-                                    <div className="card-title">
-                                        <div className="card-icon">📡</div>
-                                        <h3>API Configuration & Status</h3>
-                                    </div>
-                                </div>
-                                <div className="analysis-grid">
-                                    <div className="analysis-card">
-                                        <h4>🌤️ OpenWeather API</h4>
-                                        <div className="stat-number" style={{fontSize: '1.2rem', color: typeof weatherData.temperature === 'number' ? '#22c55e' : '#ef4444'}}>
-                                            {typeof weatherData.temperature === 'number' ? 'Connected' : 'Check API Key'}
-                                        </div>
-                                        <p>Weather & Forecast Data</p>
-                                    </div>
-                                    <div className="analysis-card">
-                                        <h4>🛰️ AgroMonitoring API</h4>
-                                        <div className="stat-number" style={{fontSize: '1.2rem', color: typeof soilData.ph !== 'string' ? '#22c55e' : '#ef4444'}}>
-                                            {typeof soilData.ph !== 'string' ? 'Connected' : 'Check API Key'}
-                                        </div>
-                                        <p>Soil & Satellite Data</p>
-                                    </div>
-                                    <div className="analysis-card">
-                                        <h4>🧠 Gemini AI</h4>
-                                        <div className="stat-number" style={{fontSize: '1.2rem', color: API_CONFIG.GEMINI_API_KEY !== '' ? '#22c55e' : '#ef4444'}}>
-                                            {API_CONFIG.GEMINI_API_KEY !== '' ? 'Ready' : 'Add API Key'}
-                                        </div>
-                                        <p>AI Chat & Recommendations</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </main>
-                </div>
-            );
-        };
-
-        // Mount the application
-        const container = document.getElementById('root');
-        const root = ReactDOM.createRoot(container);
-        root.render(<LeafNetwork />);
-
-        // Export API service for use in other components if needed
-        window.APIService = APIService;
-    </script>
-</body>
-</html>
